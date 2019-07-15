@@ -18,4 +18,6 @@ limit = args.limit
 
 for root, dirs, files in os.walk(trainset_img_dir):
   for file in files[:limit]:
-    print(root, file)
+    img = load_img(root + '/' + file, color_mode='grayscale')
+    print(img)
+
