@@ -21,7 +21,7 @@ def norm_img(img):
   x_img = img_to_array(img)
   return x_img / 255
 
-def get_data(directory):
+def get_data(directory, limit):
   files_gen = ((root_img, files) for root_img, dirs, files in os.walk(directory) if len(files))
 
   for root_img, files in files_gen:
@@ -38,20 +38,36 @@ def get_data(directory):
 
     return images, masks
 
-def show_random_scan(images_train, masks_train, images_valid, masks_valid):
+def draw_random_scan(images_train, masks_train, images_valid, masks_valid):
   fig, ax = plt.subplots(2, 2, figsize=(20, 10))
 
-  random_img_idx = random.randint(0, len(images_train))
+  random_train_idx = random.randint(0, len(images_train) - 1)
+  random_valid_idx = random.randint(0, len(images_valid) - 1)
+  print(len(images_valid), random_train_idx, random_valid_idx)
 
   ax[0][0].set_title('Scan from train set')
-  ax[0][0].imshow(images_train[random_img_idx, ..., 0], cmap='gray', interpolation='bilinear')
+  ax[0][0].imshow(images_train[random_train_idx, ..., 0], cmap='gray', interpolation='bilinear')
   ax[0][1].set_title('Mask from train set')
-  ax[0][1].imshow(masks_train[random_img_idx, ..., 0], cmap='gray', interpolation='bilinear')
+  ax[0][1].imshow(masks_train[random_train_idx, ..., 0], cmap='gray', interpolation='bilinear')
 
   ax[1][0].set_title('Scan from validation set')
-  ax[1][0].imshow(images_valid[random_img_idx, ..., 0], cmap='gray', interpolation='bilinear')
+  ax[1][0].imshow(images_valid[random_valid_idx, ..., 0], cmap='gray', interpolation='bilinear')
   ax[1][1].set_title('Mask from validation set')
-  ax[1][1].imshow(masks_valid[random_img_idx, ..., 0], cmap='gray', interpolation='bilinear')
+  ax[1][1].imshow(masks_valid[random_valid_idx, ..., 0], cmap='gray', interpolation='bilinear')
+
+  plt.show()
+
+def draw_results_log(results):
+  plt.figure(figsize=(8, 8))
+  plt.title("Learning curve")
+  plt.plot(results.history["loss"], label="loss")
+  plt.plot(results.history["val_loss"], label="val_loss")
+  plt.plot(results.history["acc"], label="acc")
+  plt.plot(results.history["val_acc"], label="val_acc")
+  plt.plot( np.argmin(results.history["val_loss"]), np.min(results.history["val_loss"]), marker="x", color="r", label="best model")
+  plt.xlabel("Epochs")
+  plt.ylabel("log_loss")
+  plt.legend()
 
   plt.show()
 
@@ -127,8 +143,8 @@ no_augmentation = args.no_augmentation
 seed = 1
 
 # Get image data from specified directory
-X_train, y_train = get_data(trainset_img_dir)
-X_valid, y_valid = get_data(validationset_img_dir)
+X_train, y_train = get_data(trainset_img_dir, limit)
+X_valid, y_valid = get_data(validationset_img_dir, limit // 4)
 
 # Create train generator for data augmentation
 generator_args = dict(horizontal_flip=True, vertical_flip=True)
@@ -140,7 +156,7 @@ mask_generator = mask_datagen.flow(y_train, seed=seed, batch_size=batch_size, sh
 train_generator = zip(image_generator, mask_generator)
 
 # Show random input data just for simple check
-show_random_scan(X_train, y_train, X_valid, y_valid)
+draw_random_scan(X_train, y_train, X_valid, y_valid)
 
 # Set the model
 model = get_unet(image_height, image_width)
@@ -165,3 +181,5 @@ else:
     callbacks=[tensorboard],
     validation_data=(X_valid, y_valid)
   )
+
+draw_results_log(results)
