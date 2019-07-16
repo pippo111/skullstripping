@@ -3,6 +3,7 @@ import os
 import random
 import numpy as np
 
+import matplotlib
 import matplotlib.pyplot as plt
 
 from keras.models import Model, load_model
@@ -118,7 +119,7 @@ limit = args.limit
 
 X_train, y_train = get_data(trainset_img_dir)
 X_valid, y_valid = get_data(validationset_img_dir)
-
+matplotlib.use("TkAgg")
 show_random_scan(X_train, y_train, X_valid, y_valid)
 
 model = get_unet(image_height, image_width)
