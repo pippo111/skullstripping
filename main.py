@@ -7,7 +7,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 
 from keras.models import Model, load_model
-from keras.preprocessing.image import load_img, img_to_array
+from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
 from keras.layers import Input, BatchNormalization, Activation, Dense, Dropout
 from keras.layers.convolutional import Conv2D, Conv2DTranspose
 from keras.layers.pooling import MaxPooling2D, GlobalMaxPool2D
@@ -101,30 +101,67 @@ def get_unet(img_rows, img_cols):
     model.compile(optimizer=Adam(lr=3e-4), loss='binary_crossentropy', metrics=['accuracy'])
     return model
 
-parser = argparse.ArgumentParser()
+matplotlib.use("TkAgg")
 
+# Command line parameters
+parser = argparse.ArgumentParser()
 parser.add_argument('--trainset-dir', type=str, help='Directory with train image set', default='z_train')
 parser.add_argument('--validationset-dir', type=str, help='Directory with validation image set', default='z_validation')
 parser.add_argument('--image-width', type=int, help='Image width', default=176)
 parser.add_argument('--image-height', type=int, help='Image height', default=256)
+parser.add_argument('--batch-size', type=int, help='Batch size', default=32)
+parser.add_argument('--epochs', type=int, help='Number of epochs', default=100)
 parser.add_argument('--limit', type=int, help='Limit trainset to first number of items')
-
+parser.add_argument('--no-augmentation', type=bool, help='Don\'t apply data augmentation', default=False)
 args, extra = parser.parse_known_args()
 
+# Setting up basic parameters
 trainset_img_dir = args.trainset_dir + '/img'
 validationset_img_dir = args.validationset_dir + '/img'
 image_width = args.image_width
 image_height = args.image_height
+batch_size = args.batch_size
+epochs = args.epochs
 limit = args.limit
+no_augmentation = args.no_augmentation
+seed = 1
 
+# Get image data from specified directory
 X_train, y_train = get_data(trainset_img_dir)
 X_valid, y_valid = get_data(validationset_img_dir)
-matplotlib.use("TkAgg")
+
+# Create train generator for data augmentation
+generator_args = dict(horizontal_flip=True, vertical_flip=True)
+image_datagen = ImageDataGenerator(**generator_args)
+mask_datagen = ImageDataGenerator(**generator_args)
+
+image_generator = image_datagen.flow(X_train, seed=seed, batch_size=batch_size, shuffle=True)
+mask_generator = mask_datagen.flow(y_train, seed=seed, batch_size=batch_size, shuffle=True)
+train_generator = zip(image_generator, mask_generator)
+
+# Show random input data just for simple check
 show_random_scan(X_train, y_train, X_valid, y_valid)
 
+# Set the model
 model = get_unet(image_height, image_width)
 model.summary()
-
 tensorboard = TensorBoard(log_dir='logs/{}'.format(time()))
 
-results = model.fit(X_train, y_train, batch_size=32, epochs=100, validation_data=(X_valid, y_valid), callbacks=[tensorboard])
+# Run the model
+if no_augmentation:
+  results = model.fit(
+    X_train,
+    y_train,
+    batch_size=batch_size,
+    epochs=epochs,
+    validation_data=(X_valid, y_valid),
+    callbacks=[tensorboard]
+  )
+else:
+  results = model.fit_generator(
+    train_generator,
+    steps_per_epoch=(len(X_train) // batch_size),
+    epochs=epochs,
+    callbacks=[tensorboard],
+    validation_data=(X_valid, y_valid)
+  )
