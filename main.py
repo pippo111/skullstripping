@@ -13,28 +13,15 @@ from keras.layers.pooling import MaxPooling2D, GlobalMaxPool2D
 from keras.layers.merge import concatenate, add
 from keras.optimizers import Adam
 
-parser = argparse.ArgumentParser()
-
-parser.add_argument('--trainset-dir', type=str, help='Directory with train image set', default='z_train')
-parser.add_argument('--validationset-dir', type=str, help='Directory with validation image set', default='z_validate')
-parser.add_argument('--image-width', type=int, help='Image width', default=176)
-parser.add_argument('--image-height', type=int, help='Image height', default=256)
-parser.add_argument('--limit', type=int, help='Limit trainset to first number of items')
-
-args, extra = parser.parse_known_args()
-
-trainset_img_dir = args.trainset_dir + '/img'
-validationset_dir = args.validationset_dir
-image_width = args.image_width
-image_height = args.image_height
-limit = args.limit
+from time import time
+from keras.callbacks import TensorBoard
 
 def norm_img(img):
   x_img = img_to_array(img)
   return x_img / 255
 
-def get_data(dir):
-  files_gen = ((root_img, files) for root_img, dirs, files in os.walk(trainset_img_dir) if len(files))
+def get_data(directory):
+  files_gen = ((root_img, files) for root_img, dirs, files in os.walk(directory) if len(files))
 
   for root_img, files in files_gen:
     root_mask = root_img.replace('img', 'mask')
@@ -50,15 +37,20 @@ def get_data(dir):
 
     return images, masks
 
-def show_random_scan(images, masks):
-  fig, ax = plt.subplots(1, 2, figsize=(20, 10))
+def show_random_scan(images_train, masks_train, images_valid, masks_valid):
+  fig, ax = plt.subplots(2, 2, figsize=(20, 10))
 
-  random_img_idx = random.randint(0, len(images))
+  random_img_idx = random.randint(0, len(images_train))
 
-  ax[0].set_title('Scan')
-  ax[0].imshow(images[random_img_idx, ..., 0], cmap='gray', interpolation='bilinear')
-  ax[1].set_title('Mask')
-  ax[1].imshow(masks[random_img_idx, ..., 0], cmap='gray', interpolation='bilinear')
+  ax[0][0].set_title('Scan from train set')
+  ax[0][0].imshow(images_train[random_img_idx, ..., 0], cmap='gray', interpolation='bilinear')
+  ax[0][1].set_title('Mask from train set')
+  ax[0][1].imshow(masks_train[random_img_idx, ..., 0], cmap='gray', interpolation='bilinear')
+
+  ax[1][0].set_title('Scan from validation set')
+  ax[1][0].imshow(images_valid[random_img_idx, ..., 0], cmap='gray', interpolation='bilinear')
+  ax[1][1].set_title('Mask from validation set')
+  ax[1][1].imshow(masks_valid[random_img_idx, ..., 0], cmap='gray', interpolation='bilinear')
 
   plt.show()
 
@@ -99,16 +91,39 @@ def get_unet(img_rows, img_cols):
     conv9 = Conv2D(16, (3, 3), activation='relu', padding='same')(up9)
     conv9 = Conv2D(16, (3, 3), activation='relu', padding='same')(conv9)
 
-    conv10 = Conv2D(2, (1, 1), activation='softmax')(conv9)
+    # conv10 = Conv2D(2, (1, 1), activation='softmax')(conv9)
     # conv10 = Conv2D(4, (1, 1), activation='sigmoid')(conv9)
 
-    model = Model(inputs=[inputs], outputs=[conv10])
+    outputs = Conv2D(1, (1, 1), activation='sigmoid') (conv9)
+    model = Model(inputs=[inputs], outputs=[outputs])
 
     model.compile(optimizer=Adam(lr=3e-4), loss='binary_crossentropy', metrics=['accuracy'])
     return model
 
-X, y = get_data(trainset_img_dir)
+parser = argparse.ArgumentParser()
+
+parser.add_argument('--trainset-dir', type=str, help='Directory with train image set', default='z_train')
+parser.add_argument('--validationset-dir', type=str, help='Directory with validation image set', default='z_validation')
+parser.add_argument('--image-width', type=int, help='Image width', default=176)
+parser.add_argument('--image-height', type=int, help='Image height', default=256)
+parser.add_argument('--limit', type=int, help='Limit trainset to first number of items')
+
+args, extra = parser.parse_known_args()
+
+trainset_img_dir = args.trainset_dir + '/img'
+validationset_img_dir = args.validationset_dir + '/img'
+image_width = args.image_width
+image_height = args.image_height
+limit = args.limit
+
+X_train, y_train = get_data(trainset_img_dir)
+X_valid, y_valid = get_data(validationset_img_dir)
+
+show_random_scan(X_train, y_train, X_valid, y_valid)
+
 model = get_unet(image_height, image_width)
 model.summary()
 
-show_random_scan(X, y)
+tensorboard = TensorBoard(log_dir='logs/{}'.format(time()))
+
+results = model.fit(X_train, y_train, batch_size=32, epochs=100, validation_data=(X_valid, y_valid), callbacks=[tensorboard])
