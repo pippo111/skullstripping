@@ -1,35 +1,14 @@
 import argparse
-import os
-import numpy as np
+
 from time import time
 
-from keras.preprocessing.image import ImageDataGenerator, load_img, img_to_array
+from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import TensorBoard, ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
 
 # Local imports
 import network
 import plots
-
-def norm_img(img):
-  x_img = img_to_array(img)
-  return x_img / 255
-
-def get_data(directory, limit):
-  files_gen = ((root_img, files) for root_img, dirs, files in os.walk(directory) if len(files))
-
-  for root_img, files in files_gen:
-    root_mask = root_img.replace('img', 'mask')
-    images = np.zeros((limit or len(files), image_height, image_width, 1), dtype=np.float32)
-    masks = np.zeros((limit or len(files), image_height, image_width, 1), dtype=np.float32)
-
-    for i, file in enumerate(files[:limit]):
-      img = load_img(root_img + '/' + file, color_mode='grayscale')
-      images[i] = norm_img(img)
-
-      mask = load_img(root_mask + '/' + file, color_mode='grayscale')
-      masks[i] = norm_img(mask)
-
-    return images, masks
+import dataset
 
 # Command line parameters
 parser = argparse.ArgumentParser()
@@ -57,8 +36,8 @@ model_name = args.model_name
 seed = 1
 
 # Get image data from specified directory
-X_train, y_train = get_data(trainset_img_dir, limit)
-X_valid, y_valid = get_data(validationset_img_dir, limit // 4)
+X_train, y_train = dataset.get_data(trainset_img_dir, image_width, image_height, limit)
+X_valid, y_valid = dataset.get_data(validationset_img_dir, image_width, image_height, limit // 4)
 
 # Create train generator for data augmentation
 generator_args = dict(

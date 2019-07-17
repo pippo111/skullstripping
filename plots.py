@@ -39,3 +39,24 @@ def draw_results_log(results):
   plt.legend()
 
   plt.show()
+
+def plot_sample(X, y, preds, binary_preds, ix=None):
+  if ix is None:
+    ix = random.randint(0, len(X) - 1)
+
+  fig, ax = plt.subplots(1, 4, figsize=(20, 10))
+  ax[0].imshow(X[ix, ..., 0], cmap='bone')
+  ax[0].contour(y[ix].squeeze(), cmap='bone', levels=[0.5])
+  ax[0].set_title('Scan image')
+
+  ax[1].imshow(y[ix].squeeze(), cmap='bone',)
+  ax[1].set_title('Scan mask')
+
+  ax[2].imshow(preds[ix].squeeze(), cmap='bone', vmin=0, vmax=1)
+  ax[2].contour(y[ix].squeeze(), colors='yellow', levels=[0.5])
+  ax[2].set_title('Scan Predicted Mask')
+
+  ax[3].imshow(binary_preds[ix].squeeze(), vmin=0, vmax=1)
+  ax[3].set_title('Scan Predicted binary');
+
+  plt.show()
