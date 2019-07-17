@@ -3,6 +3,8 @@
 /z_validation
 # Callback logs
 /logs
+# Saved models
+/models
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
