@@ -15,7 +15,7 @@ from keras.layers.merge import concatenate, add
 from keras.optimizers import Adam
 
 from time import time
-from keras.callbacks import TensorBoard
+from keras.callbacks import TensorBoard, ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
 
 def norm_img(img):
   x_img = img_to_array(img)
@@ -112,7 +112,7 @@ def get_unet(img_rows, img_cols):
     outputs = Conv2D(1, (1, 1), activation='sigmoid') (conv9)
     model = Model(inputs=[inputs], outputs=[outputs])
 
-    model.compile(optimizer=Adam(lr=3e-4), loss='binary_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer=Adam(), loss='binary_crossentropy', metrics=['accuracy'])
     return model
 
 matplotlib.use("TkAgg")
@@ -127,6 +127,7 @@ parser.add_argument('--batch-size', type=int, help='Batch size', default=32)
 parser.add_argument('--epochs', type=int, help='Number of epochs', default=100)
 parser.add_argument('--limit', type=int, help='Limit trainset to first number of items')
 parser.add_argument('--no-augmentation', type=bool, help='Don\'t apply data augmentation', default=False)
+parser.add_argument('--model-name', type=str, help='File name for the model checkpoint to save', default='unet')
 args, extra = parser.parse_known_args()
 
 # Setting up basic parameters
@@ -138,6 +139,7 @@ batch_size = args.batch_size
 epochs = args.epochs
 limit = args.limit
 no_augmentation = args.no_augmentation
+model_name = args.model_name
 seed = 1
 
 # Get image data from specified directory
@@ -183,7 +185,12 @@ else:
     train_generator,
     steps_per_epoch=(len(X_train) // batch_size),
     epochs=epochs,
-    callbacks=[tensorboard],
+    callbacks=[
+      tensorboard,
+      EarlyStopping(patience=10, verbose=1),
+      ReduceLROnPlateau(factor=0.1, patience=3, min_lr=0.00001, verbose=1),
+      ModelCheckpoint('models/weights.{}.hdf5'.format(model_name), verbose=1, save_best_only=True, save_weights_only=True)
+    ],
     validation_data=(X_valid, y_valid)
   )
 
