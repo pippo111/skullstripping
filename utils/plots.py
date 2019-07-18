@@ -43,7 +43,7 @@ def draw_results_log(results, text=''):
 
   plt.show()
 
-def plot_sample(X, y, preds, binary_preds, combined_preds, ix=None, text=''):
+def plot_sample(X, y, preds, binary_preds, combined_preds, ix=None, text='', threshold=0.5):
   if ix is None:
     ix = random.randint(0, len(X) - 1)
 
@@ -56,7 +56,7 @@ def plot_sample(X, y, preds, binary_preds, combined_preds, ix=None, text=''):
   ax[1][0].set_title('Original mask')
 
   ax[0][1].imshow(preds[ix].squeeze(), cmap='gray', vmin=0, vmax=1)
-  ax[0][1].contour(preds[ix].squeeze(), colors='yellow', levels=[0.5])
+  ax[0][1].contour(preds[ix].squeeze(), colors='yellow', levels=[threshold])
   ax[0][1].set_title('Predicted Mask')
 
   ax[1][1].imshow(binary_preds[ix].squeeze(), cmap='gray')

@@ -20,6 +20,8 @@ parser.add_argument('--image-height', type=int, help='Image height', default=256
 parser.add_argument('--limit', type=int, help='Limit validation set to first number of items')
 parser.add_argument('--model-name', type=str, help='File name for the model checkpoint to save', default='unet')
 parser.add_argument('--loss-function', type=str, help='Loss function name', default='binary_crossentropy')
+parser.add_argument('--show-slice', type=int, help='Select slice to show on output')
+parser.add_argument('--threshold', type=float, help='Set threshold', default=0.5)
 args, extra = parser.parse_known_args()
 
 # Setting up basic parameters
@@ -28,9 +30,11 @@ image_width = args.image_width
 image_height = args.image_height
 limit = args.limit
 model_name = args.model_name
+slice_no = args.show_slice
 loss = loss[args.loss_function]
+threshold = args.threshold
 
-fig_title = 'Limit={}, Loss: {}, Model name: {}'.format(limit, args.loss_function, model_name)
+fig_title = 'Limit={}, Loss: {}, Threshold: {}, Model name: {}'.format(limit, args.loss_function, threshold, model_name)
 
 X_valid, y_valid = dataset.get_data(validationset_dir, image_width, image_height, limit)
 
@@ -44,8 +48,8 @@ loss, acc = model.evaluate(X_valid, y_valid, verbose=1)
 print('loss={}, acc={}'.format(loss, acc))
 
 preds_val = model.predict(X_valid, verbose=1)
-preds_val_t = (preds_val > 0.5).astype(np.uint8)
+preds_val_t = (preds_val > threshold).astype(np.uint8)
 
 combined_val = y_valid + preds_val_t
 
-plots.plot_sample(X_valid, y_valid, preds_val, preds_val_t, combined_val, text=fig_title)
+plots.plot_sample(X_valid, y_valid, preds_val, preds_val_t, combined_val, text=fig_title, ix=slice_no, threshold=threshold)
