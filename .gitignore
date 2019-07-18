@@ -3,8 +3,10 @@
 /z_validation
 # Callback logs
 /logs/*
+!/logs/.gitkeep
 # Saved models
 /models/*
+!/models/.gitkeep
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
