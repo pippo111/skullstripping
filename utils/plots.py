@@ -7,7 +7,7 @@ from keras.preprocessing.image import ImageDataGenerator
 
 matplotlib.use("TkAgg")
 
-def draw_aug_samples(images_train, masks_train, generator_args):
+def draw_aug_samples(images_train, masks_train, generator_args, text=''):
   seed = random.randint(0, 128)
   image_datagen = ImageDataGenerator(**generator_args)
 
@@ -15,6 +15,8 @@ def draw_aug_samples(images_train, masks_train, generator_args):
   check_mask_gen = image_datagen.flow(masks_train, seed=seed, batch_size=1, shuffle=True)
 
   fig, ax = plt.subplots(2, 6, figsize=(20, 10))
+  fig.suptitle(text)
+
   for i in range(6):
     batch = check_image_gen.next()
     ax[0][i].set_title('Train image ex.')
@@ -26,8 +28,9 @@ def draw_aug_samples(images_train, masks_train, generator_args):
 
   plt.show()
 
-def draw_results_log(results):
+def draw_results_log(results, text=''):
   plt.figure(figsize=(8, 8))
+  plt.suptitle(text)
   plt.title("Learning curve")
   plt.plot(results.history["loss"], label="loss")
   plt.plot(results.history["val_loss"], label="val_loss")
@@ -40,11 +43,12 @@ def draw_results_log(results):
 
   plt.show()
 
-def plot_sample(X, y, preds, binary_preds, combined_preds, ix=None):
+def plot_sample(X, y, preds, binary_preds, combined_preds, ix=None, text=''):
   if ix is None:
     ix = random.randint(0, len(X) - 1)
 
   fig, ax = plt.subplots(2, 3, figsize=(20, 10))
+  fig.suptitle(text)
   ax[0][0].imshow(X[ix, ..., 0], cmap='gray')
   ax[0][0].set_title('Original image')
 

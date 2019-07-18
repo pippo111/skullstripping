@@ -2,9 +2,10 @@ import argparse
 import numpy as np
 
 # Local imports
-import network
-import dataset
-import plots
+from utils import network
+from utils import plots
+from utils import dataset
+from utils import loss
 
 # Command line parameters
 parser = argparse.ArgumentParser()
@@ -22,6 +23,8 @@ image_height = args.image_height
 limit = args.limit
 model_name = args.model_name
 
+fig_title = 'Limit={}, Model name: {}'.format(limit, model_name)
+
 X_valid, y_valid = dataset.get_data(validationset_dir, image_width, image_height, limit)
 
 y_valid = y_valid * 2
@@ -37,4 +40,4 @@ preds_val_t = (preds_val > 0.5).astype(np.uint8)
 
 combined_val = y_valid + preds_val_t
 
-plots.plot_sample(X_valid, y_valid, preds_val, preds_val_t, combined_val)
+plots.plot_sample(X_valid, y_valid, preds_val, preds_val_t, combined_val, text=fig_title)

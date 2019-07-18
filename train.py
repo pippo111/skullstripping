@@ -43,6 +43,8 @@ model_name = args.model_name
 loss = loss[args.loss_function]
 seed = 1
 
+fig_title = 'Limit={}, Batch size={}, Loss: {}, Model name: {}'.format(limit, batch_size, args.loss_function, model_name)
+
 # Get image data from specified directory
 X_train, y_train = dataset.get_data(trainset_dir, image_width, image_height, limit)
 X_valid, y_valid = dataset.get_data(validationset_dir, image_width, image_height, limit // 4)
@@ -64,7 +66,7 @@ mask_generator = mask_datagen.flow(y_train, seed=seed, batch_size=batch_size, sh
 train_generator = zip(image_generator, mask_generator)
 
 # Show random input data just for simple check
-plots.draw_aug_samples(X_train, y_train, generator_args)
+plots.draw_aug_samples(X_train, y_train, generator_args, text=fig_title)
 
 # Set the model
 model = network.get_unet(image_height, image_width, loss)
@@ -100,4 +102,4 @@ else:
     validation_data=(X_valid, y_valid)
   )
 
-plots.draw_results_log(results)
+plots.draw_results_log(results, text=fig_title)
