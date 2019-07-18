@@ -14,7 +14,7 @@ def draw_aug_samples(images_train, masks_train, generator_args):
   check_image_gen = image_datagen.flow(images_train, seed=seed, batch_size=1, shuffle=True)
   check_mask_gen = image_datagen.flow(masks_train, seed=seed, batch_size=1, shuffle=True)
 
-  fig, ax = plt.subplots(2, 6, figsize=(20, 10))
+  fig, ax = plt.subplots(1, 6, figsize=(20, 10))
   for i in range(6):
     batch = check_image_gen.next()
     ax[0][i].set_title('Train image ex.')
@@ -40,23 +40,31 @@ def draw_results_log(results):
 
   plt.show()
 
-def plot_sample(X, y, preds, binary_preds, ix=None):
+def plot_sample(X, y, preds, binary_preds, combined_preds, ix=None):
   if ix is None:
     ix = random.randint(0, len(X) - 1)
 
-  fig, ax = plt.subplots(1, 4, figsize=(20, 10))
-  ax[0].imshow(X[ix, ..., 0], cmap='bone')
-  ax[0].contour(y[ix].squeeze(), cmap='bone', levels=[0.5])
-  ax[0].set_title('Scan image')
+  fig, ax = plt.subplots(2, 3, figsize=(20, 10))
+  ax[0][0].imshow(X[ix, ..., 0], cmap='gray')
+  ax[0][0].set_title('Original image')
 
-  ax[1].imshow(y[ix].squeeze(), cmap='bone',)
-  ax[1].set_title('Scan mask')
+  ax[1][0].imshow(y[ix].squeeze(), cmap='gray',)
+  ax[1][0].set_title('Original mask')
 
-  ax[2].imshow(preds[ix].squeeze(), cmap='bone', vmin=0, vmax=1)
-  ax[2].contour(y[ix].squeeze(), colors='yellow', levels=[0.5])
-  ax[2].set_title('Scan Predicted Mask')
+  ax[0][1].imshow(preds[ix].squeeze(), cmap='gray', vmin=0, vmax=1)
+  ax[0][1].contour(y[ix].squeeze(), colors='yellow', levels=[0.5])
+  ax[0][1].set_title('Predicted Mask')
 
-  ax[3].imshow(binary_preds[ix].squeeze(), vmin=0, vmax=1)
-  ax[3].set_title('Scan Predicted binary');
+  ax[1][1].imshow(binary_preds[ix].squeeze(), cmap='gray')
+  ax[1][1].set_title('Predicted Mask binary')
+
+  cmap = matplotlib.colors.ListedColormap(['black', 'red', 'yellow', 'green'])
+  norm = matplotlib.colors.Normalize(vmin=0, vmax=3)
+  ax[0][2].imshow(combined_preds[ix].squeeze(), cmap=cmap, norm=norm)
+  ax[0][2].set_title('Combined masks')
+
+  ax[1][2].imshow(X[ix, ..., 0], cmap='gray')
+  ax[1][2].imshow(combined_preds[ix].squeeze(), cmap=cmap, norm=norm, alpha=0.2)
+  ax[1][2].set_title('Overlay mask')
 
   plt.show()

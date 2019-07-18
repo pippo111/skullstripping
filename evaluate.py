@@ -24,6 +24,8 @@ model_name = args.model_name
 
 X_valid, y_valid = dataset.get_data(validationset_img_dir, image_width, image_height, limit)
 
+y_valid = y_valid * 2
+
 model = network.get_unet(image_height, image_width)
 model.load_weights('models/weights.{}.hdf5'.format(model_name))
 
@@ -33,4 +35,6 @@ print('loss={}, acc={}'.format(loss, acc))
 preds_val = model.predict(X_valid, verbose=1)
 preds_val_t = (preds_val > 0.5).astype(np.uint8)
 
-plots.plot_sample(X_valid, y_valid, preds_val, preds_val_t, 5)
+combined_val = y_valid + preds_val_t
+
+plots.plot_sample(X_valid, y_valid, preds_val, preds_val_t, combined_val)
