@@ -43,9 +43,9 @@ X_valid, y_valid = dataset.get_data(validationset_dir, image_width, image_height
 generator_args = dict(
   horizontal_flip=True,
   vertical_flip=True,
-  rotation_range=90,
-  width_shift_range=20,
-  height_shift_range=20,
+  rotation_range=5,
+  width_shift_range=0.1,
+  height_shift_range=0.1,
   zoom_range=0.05
 )
 image_datagen = ImageDataGenerator(**generator_args)
@@ -70,13 +70,13 @@ if no_augmentation:
     y_train,
     batch_size=batch_size,
     epochs=epochs,
-    validation_data=(X_valid, y_valid),
     callbacks=[
       tensorboard,
-      EarlyStopping(patience=25, verbose=1),
+      # EarlyStopping(patience=25, verbose=1),
       ReduceLROnPlateau(factor=0.1, patience=3, min_lr=0.00001, verbose=1),
       ModelCheckpoint('models/weights.{}.hdf5'.format(model_name), verbose=1, save_best_only=True, save_weights_only=True)
     ],
+    validation_data=(X_valid, y_valid),
   )
 else:
   results = model.fit_generator(
@@ -85,7 +85,7 @@ else:
     epochs=epochs,
     callbacks=[
       tensorboard,
-      EarlyStopping(patience=25, verbose=1),
+      # EarlyStopping(patience=25, verbose=1),
       ReduceLROnPlateau(factor=0.1, patience=3, min_lr=0.00001, verbose=1),
       ModelCheckpoint('models/weights.{}.hdf5'.format(model_name), verbose=1, save_best_only=True, save_weights_only=True)
     ],
