@@ -72,7 +72,7 @@ plots.draw_aug_samples(X_train, y_train, generator_args, text=fig_title)
 model = network.get_unet(image_height, image_width, loss)
 # model = network.get_custom_unet(image_height, image_width, loss)
 model.summary()
-tensorboard = TensorBoard(log_dir='logs/{}'.format(time()))
+tensorboard = TensorBoard(log_dir='logs/{}-{}'.format(time(), model_name))
 
 # Run the model
 if no_augmentation:
