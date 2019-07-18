@@ -19,7 +19,7 @@ def get_data(directory, image_width, image_height, limit):
     print('Directory {} not found!'.format(mask_dir))
     exit()
 
-  files_gen = ((root_img, files) for root_img, dirs, files in os.walk(directory) if len(files))
+  files_gen = ((root_img, files) for root_img, dirs, files in os.walk(img_dir) if len(files))
 
   for root_img, files in files_gen:
     root_mask = root_img.replace('img', 'mask')

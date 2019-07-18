@@ -42,10 +42,7 @@ def get_unet(img_rows, img_cols):
   conv9 = Conv2D(16, (3, 3), activation='relu', padding='same')(up9)
   conv9 = Conv2D(16, (3, 3), activation='relu', padding='same')(conv9)
 
-  # conv10 = Conv2D(2, (1, 1), activation='softmax')(conv9)
-  # conv10 = Conv2D(4, (1, 1), activation='sigmoid')(conv9)
-
-  outputs = Conv2D(1, (1, 1), activation='sigmoid') (conv9)
+  outputs = Conv2D(1, (1, 1), activation='sigmoid')(conv9)
   model = Model(inputs=[inputs], outputs=[outputs])
 
   model.compile(optimizer=Adam(), loss='binary_crossentropy', metrics=['accuracy'])
