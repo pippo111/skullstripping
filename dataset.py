@@ -8,6 +8,17 @@ def norm_img(img):
   return x_img / 255
 
 def get_data(directory, image_width, image_height, limit):
+  img_dir = directory + '/img'
+  mask_dir = directory + '/mask'
+
+  if not os.path.exists(img_dir):
+    print('Directory {} not found!'.format(img_dir))
+    exit()
+
+  if not os.path.exists(mask_dir):
+    print('Directory {} not found!'.format(mask_dir))
+    exit()
+
   files_gen = ((root_img, files) for root_img, dirs, files in os.walk(directory) if len(files))
 
   for root_img, files in files_gen:

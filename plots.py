@@ -14,7 +14,7 @@ def draw_aug_samples(images_train, masks_train, generator_args):
   check_image_gen = image_datagen.flow(images_train, seed=seed, batch_size=1, shuffle=True)
   check_mask_gen = image_datagen.flow(masks_train, seed=seed, batch_size=1, shuffle=True)
 
-  fig, ax = plt.subplots(1, 6, figsize=(20, 10))
+  fig, ax = plt.subplots(2, 6, figsize=(20, 10))
   for i in range(6):
     batch = check_image_gen.next()
     ax[0][i].set_title('Train image ex.')

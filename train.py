@@ -24,8 +24,8 @@ parser.add_argument('--model-name', type=str, help='File name for the model chec
 args, extra = parser.parse_known_args()
 
 # Setting up basic parameters
-trainset_img_dir = args.trainset_dir + '/img'
-validationset_img_dir = args.validationset_dir + '/img'
+trainset_dir = args.trainset_dir
+validationset_dir = args.validationset_dir
 image_width = args.image_width
 image_height = args.image_height
 batch_size = args.batch_size
@@ -36,8 +36,8 @@ model_name = args.model_name
 seed = 1
 
 # Get image data from specified directory
-X_train, y_train = dataset.get_data(trainset_img_dir, image_width, image_height, limit)
-X_valid, y_valid = dataset.get_data(validationset_img_dir, image_width, image_height, limit // 4)
+X_train, y_train = dataset.get_data(trainset_dir, image_width, image_height, limit)
+X_valid, y_valid = dataset.get_data(validationset_dir, image_width, image_height, limit // 4)
 
 # Create train generator for data augmentation
 generator_args = dict(
