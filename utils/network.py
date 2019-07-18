@@ -51,20 +51,20 @@ def get_unet(img_rows, img_cols, loss='binary_crossentropy'):
 # Custom unet from tutorial
 def conv2d_block(input_tensor, n_filters, kernel_size=3, batchnorm=True):
   # first layer
-  x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer="he_normal",
-              padding="same")(input_tensor)
+  x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer='he_normal',
+              padding='same')(input_tensor)
   if batchnorm:
       x = BatchNormalization()(x)
-  x = Activation("relu")(x)
+  x = Activation('relu')(x)
   # second layer
-  x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer="he_normal",
-              padding="same")(x)
+  x = Conv2D(filters=n_filters, kernel_size=(kernel_size, kernel_size), kernel_initializer='he_normal',
+              padding='same')(x)
   if batchnorm:
       x = BatchNormalization()(x)
-  x = Activation("relu")(x)
+  x = Activation('relu')(x)
   return x
   
-def get_custom_unet(img_rows, img_cols, n_filters=16, dropout=0.5, batchnorm=True):
+def get_custom_unet(img_rows, img_cols, loss='binary_crossentropy', n_filters=16, dropout=0.5, batchnorm=True):
   input_img = Input((img_rows, img_cols, 1), name='img')
   # contracting path
   c1 = conv2d_block(input_img, n_filters=n_filters*1, kernel_size=3, batchnorm=batchnorm)
@@ -108,4 +108,6 @@ def get_custom_unet(img_rows, img_cols, n_filters=16, dropout=0.5, batchnorm=Tru
   
   outputs = Conv2D(1, (1, 1), activation='sigmoid') (c9)
   model = Model(inputs=[input_img], outputs=[outputs])
+
+  model.compile(optimizer=Adam(), loss=loss, metrics=['accuracy'])
   return model
