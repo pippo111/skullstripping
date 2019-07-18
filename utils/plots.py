@@ -48,7 +48,7 @@ def plot_sample(X, y, preds, binary_preds, combined_preds, ix=None, text=''):
     ix = random.randint(0, len(X) - 1)
 
   fig, ax = plt.subplots(2, 3, figsize=(20, 10))
-  fig.suptitle(text)
+  fig.suptitle('slice={}, {}'.format(ix, text))
   ax[0][0].imshow(X[ix, ..., 0], cmap='gray')
   ax[0][0].set_title('Original image')
 
