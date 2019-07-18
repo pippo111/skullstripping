@@ -6,9 +6,15 @@ from keras.preprocessing.image import ImageDataGenerator
 from keras.callbacks import TensorBoard, ReduceLROnPlateau, EarlyStopping, ModelCheckpoint
 
 # Local imports
-import network
-import plots
-import dataset
+from utils import network
+from utils import plots
+from utils import dataset
+from utils import loss
+
+loss = dict(
+  binary_crossentropy='binary_crossentropy',
+  dice_loss=loss.dice_coef_loss
+)
 
 # Command line parameters
 parser = argparse.ArgumentParser()
@@ -20,6 +26,7 @@ parser.add_argument('--batch-size', type=int, help='Batch size', default=32)
 parser.add_argument('--epochs', type=int, help='Number of epochs', default=100)
 parser.add_argument('--limit', type=int, help='Limit trainset to first number of items')
 parser.add_argument('--no-augmentation', type=bool, help='Don\'t apply data augmentation', default=False)
+parser.add_argument('--loss-function', type=str, help='Loss function name', default='binary_crossentropy')
 parser.add_argument('--model-name', type=str, help='File name for the model checkpoint to save', default='unet')
 args, extra = parser.parse_known_args()
 
@@ -33,6 +40,7 @@ epochs = args.epochs
 limit = args.limit
 no_augmentation = args.no_augmentation
 model_name = args.model_name
+loss = loss[args.loss_function]
 seed = 1
 
 # Get image data from specified directory
@@ -59,7 +67,7 @@ train_generator = zip(image_generator, mask_generator)
 plots.draw_aug_samples(X_train, y_train, generator_args)
 
 # Set the model
-model = network.get_unet(image_height, image_width)
+model = network.get_unet(image_height, image_width, loss)
 model.summary()
 tensorboard = TensorBoard(log_dir='logs/{}'.format(time()))
 

@@ -5,7 +5,8 @@ from keras.layers.merge import concatenate
 from keras.layers import Input
 from keras.optimizers import Adam
 
-def get_unet(img_rows, img_cols):
+def get_unet(img_rows, img_cols, loss='binary_crossentropy'):
+  print(loss)
   inputs = Input((img_rows, img_cols, 1))
   conv1 = Conv2D(16, (3, 3), activation='relu', padding='same')(inputs)
   conv1 = Conv2D(16, (3, 3), activation='relu', padding='same')(conv1)
@@ -45,5 +46,5 @@ def get_unet(img_rows, img_cols):
   outputs = Conv2D(1, (1, 1), activation='sigmoid')(conv9)
   model = Model(inputs=[inputs], outputs=[outputs])
 
-  model.compile(optimizer=Adam(), loss='binary_crossentropy', metrics=['accuracy'])
+  model.compile(optimizer=Adam(), loss=loss, metrics=['accuracy'])
   return model

@@ -16,13 +16,13 @@ parser.add_argument('--model-name', type=str, help='File name for the model chec
 args, extra = parser.parse_known_args()
 
 # Setting up basic parameters
-validationset_img_dir = args.validationset_dir + '/img'
+validationset_dir = args.validationset_dir
 image_width = args.image_width
 image_height = args.image_height
 limit = args.limit
 model_name = args.model_name
 
-X_valid, y_valid = dataset.get_data(validationset_img_dir, image_width, image_height, limit)
+X_valid, y_valid = dataset.get_data(validationset_dir, image_width, image_height, limit)
 
 y_valid = y_valid * 2
 

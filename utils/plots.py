@@ -52,7 +52,7 @@ def plot_sample(X, y, preds, binary_preds, combined_preds, ix=None):
   ax[1][0].set_title('Original mask')
 
   ax[0][1].imshow(preds[ix].squeeze(), cmap='gray', vmin=0, vmax=1)
-  ax[0][1].contour(y[ix].squeeze(), colors='yellow', levels=[0.5])
+  ax[0][1].contour(preds[ix].squeeze(), colors='yellow', levels=[0.5])
   ax[0][1].set_title('Predicted Mask')
 
   ax[1][1].imshow(binary_preds[ix].squeeze(), cmap='gray')
