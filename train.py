@@ -47,7 +47,7 @@ fig_title = 'Limit={}, Batch size={}, Loss: {}, Model name: {}'.format(limit, ba
 
 # Get image data from specified directory
 X_train, y_train = dataset.get_data(trainset_dir, image_width, image_height, limit)
-X_valid, y_valid = dataset.get_data(validationset_dir, image_width, image_height, limit // 4)
+X_valid, y_valid = dataset.get_data(validationset_dir, image_width, image_height, limit, validation=True)
 
 # Create train generator for data augmentation
 generator_args = dict(
@@ -69,8 +69,8 @@ train_generator = zip(image_generator, mask_generator)
 plots.draw_aug_samples(X_train, y_train, generator_args, text=fig_title)
 
 # Set the model
-model = network.get_unet(image_height, image_width, loss)
-# model = network.get_custom_unet(image_height, image_width, loss)
+# model = network.get_unet(image_height, image_width, loss)
+model = network.get_custom_unet(image_height, image_width, loss)
 model.summary()
 tensorboard = TensorBoard(log_dir='logs/{}-{}'.format(time(), model_name))
 
@@ -83,7 +83,7 @@ if no_augmentation:
     epochs=epochs,
     callbacks=[
       tensorboard,
-      # EarlyStopping(patience=25, verbose=1),
+      EarlyStopping(patience=15, verbose=1),
       ReduceLROnPlateau(factor=0.1, patience=3, min_lr=0.00001, verbose=1),
       ModelCheckpoint('models/weights.{}.hdf5'.format(model_name), verbose=1, save_best_only=True, save_weights_only=True)
     ],
@@ -96,7 +96,7 @@ else:
     epochs=epochs,
     callbacks=[
       tensorboard,
-      # EarlyStopping(patience=25, verbose=1),
+      EarlyStopping(patience=15, verbose=1),
       ReduceLROnPlateau(factor=0.1, patience=3, min_lr=0.00001, verbose=1),
       ModelCheckpoint('models/weights.{}.hdf5'.format(model_name), verbose=1, save_best_only=True, save_weights_only=True)
     ],

@@ -7,7 +7,7 @@ def norm_img(img):
   x_img = img_to_array(img)
   return x_img / 255
 
-def get_data(directory, image_width, image_height, limit):
+def get_data(directory, image_width, image_height, limit, validation=False):
   img_dir = directory + '/img'
   mask_dir = directory + '/mask'
 
@@ -23,10 +23,13 @@ def get_data(directory, image_width, image_height, limit):
 
   for root_img, files in files_gen:
     root_mask = root_img.replace('img', 'mask')
-    images = np.zeros((limit or len(files), image_height, image_width, 1), dtype=np.float32)
-    masks = np.zeros((limit or len(files), image_height, image_width, 1), dtype=np.float32)
 
-    for i, file in enumerate(files[:limit]):
+    limit = limit or len(files)
+    matrix_size = limit // 4 if validation == True else limit
+    images = np.zeros((matrix_size, image_height, image_width, 1), dtype=np.float32)
+    masks = np.zeros((matrix_size, image_height, image_width, 1), dtype=np.float32)
+
+    for i, file in enumerate(files[:matrix_size]):
       img = load_img(root_img + '/' + file, color_mode='grayscale')
       images[i] = norm_img(img)
 
