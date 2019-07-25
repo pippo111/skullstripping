@@ -40,8 +40,8 @@ X_valid, y_valid = dataset.get_data(validationset_dir, image_width, image_height
 
 y_valid = y_valid * 2
 
-model = network.get_unet(image_height, image_width, loss)
-# model = network.get_custom_unet(image_height, image_width, loss)
+# model = network.get_unet(image_height, image_width, loss)
+model = network.get_custom_unet(image_height, image_width, loss)
 model.load_weights('models/weights.{}.hdf5'.format(model_name))
 
 loss, acc = model.evaluate(X_valid, y_valid, verbose=1)

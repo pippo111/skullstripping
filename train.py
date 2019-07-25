@@ -83,7 +83,7 @@ if no_augmentation:
     epochs=epochs,
     callbacks=[
       tensorboard,
-      EarlyStopping(patience=15, verbose=1),
+      EarlyStopping(patience=10, verbose=1),
       ReduceLROnPlateau(factor=0.1, patience=3, min_lr=0.00001, verbose=1),
       ModelCheckpoint('models/weights.{}.hdf5'.format(model_name), verbose=1, save_best_only=True, save_weights_only=True)
     ],
@@ -96,7 +96,7 @@ else:
     epochs=epochs,
     callbacks=[
       tensorboard,
-      EarlyStopping(patience=15, verbose=1),
+      EarlyStopping(patience=10, verbose=1),
       ReduceLROnPlateau(factor=0.1, patience=3, min_lr=0.00001, verbose=1),
       ModelCheckpoint('models/weights.{}.hdf5'.format(model_name), verbose=1, save_best_only=True, save_weights_only=True)
     ],
