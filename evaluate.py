@@ -2,7 +2,7 @@ import argparse
 import numpy as np
 
 # Local imports
-from utils import network
+from utils import networks
 from utils import plots
 from utils import dataset
 from utils import loss
@@ -20,7 +20,8 @@ parser.add_argument('--image-height', type=int, help='Image height', default=256
 parser.add_argument('--limit', type=int, help='Limit validation set to first number of items')
 parser.add_argument('--model-name', type=str, help='File name for the model checkpoint to save', default='unet')
 parser.add_argument('--loss-function', type=str, help='Loss function name', default='binary_crossentropy')
-parser.add_argument('--show-slice', type=int, help='Select slice to show on output')
+parser.add_argument('--slice-numbers', type=str, help='Select slice to show or save on output')
+parser.add_argument('--save-slice', type=bool, help='Save showed slice as png', default=False)
 parser.add_argument('--threshold', type=float, help='Set threshold', default=0.5)
 args, extra = parser.parse_known_args()
 
@@ -30,18 +31,16 @@ image_width = args.image_width
 image_height = args.image_height
 limit = args.limit
 model_name = args.model_name
-slice_no = args.show_slice
+slice_numbers = args.slice_numbers.split(',')
+save_slice = args.save_slice
 loss = loss[args.loss_function]
 threshold = args.threshold
 
-fig_title = 'Limit={}, Loss: {}, Threshold: {}, Model name: {}'.format(limit, args.loss_function, threshold, model_name)
-
 X_valid, y_valid = dataset.get_data(validationset_dir, image_width, image_height, limit)
-
 y_valid = y_valid * 2
 
-# model = network.get_unet(image_height, image_width, loss)
-model = network.get_custom_unet(image_height, image_width, loss)
+network_name = 'Unet'
+model = networks.get(network_name)
 model.load_weights('models/weights.{}.hdf5'.format(model_name))
 
 loss, acc = model.evaluate(X_valid, y_valid, verbose=1)
@@ -52,4 +51,17 @@ preds_val_t = (preds_val > threshold).astype(np.uint8)
 
 combined_val = y_valid + preds_val_t
 
-plots.plot_sample(X_valid, y_valid, preds_val, preds_val_t, combined_val, text=fig_title, ix=slice_no, threshold=threshold)
+fig_title = 'Limit={}, Loss fn: {}, Threshold: {}, Model name: {}, Loss={}, Acc={}'.format(limit or len(X_valid), args.loss_function, threshold, model_name, loss, acc)
+
+for slice_no in slice_numbers:
+  plots.plot_sample(
+    X_valid,
+    y_valid,
+    preds_val,
+    preds_val_t,
+    combined_val,
+    text=fig_title,
+    ix=int(slice_no),
+    threshold=threshold,
+    save_slice=save_slice
+  )
