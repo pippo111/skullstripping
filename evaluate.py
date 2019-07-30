@@ -33,14 +33,14 @@ limit = args.limit
 model_name = args.model_name
 slice_numbers = args.slice_numbers.split(',')
 save_slice = args.save_slice
-loss = loss[args.loss_function]
+loss_fn = loss.get(args.loss_function)
 threshold = args.threshold
 
 X_valid, y_valid = dataset.get_data(validationset_dir, image_width, image_height, limit)
 y_valid = y_valid * 2
 
 network_name = 'Unet'
-model = networks.get(network_name)
+model = networks.get(name=network_name, loss_function=loss_fn)
 model.load_weights('models/weights.{}.hdf5'.format(model_name))
 
 loss, acc = model.evaluate(X_valid, y_valid, verbose=1)

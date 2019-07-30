@@ -11,11 +11,6 @@ from utils import plots
 from utils import dataset
 from utils import loss
 
-loss = dict(
-  binary_crossentropy='binary_crossentropy',
-  dice_loss=loss.dice_coef_loss
-)
-
 # Command line parameters
 parser = argparse.ArgumentParser()
 parser.add_argument('--trainset-dir', type=str, help='Directory with train image set', default='z_train')
@@ -38,7 +33,7 @@ batch_size = args.batch_size
 epochs = args.epochs
 limit = args.limit
 model_name = args.model_name
-loss = loss[args.loss_function]
+loss_fn = loss.get(args.loss_function)
 seed = 1
 
 fig_title = 'Limit={}, Batch size={}, Loss: {}, Model name: {}'.format(limit, batch_size, args.loss_function, model_name)
@@ -68,7 +63,7 @@ plots.draw_aug_samples(X_train, y_train, generator_args, text=fig_title)
 
 # Set the model
 network_name = 'Unet'
-model = networks.get(network_name)
+model = networks.get(name=network_name, loss_function=loss_fn)
 model.summary()
 tensorboard = TensorBoard(log_dir='logs/{}-{}'.format(time(), model_name))
 
