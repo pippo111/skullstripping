@@ -14,7 +14,7 @@ def get(name, input_cols=176, input_rows=256, n_filters=16, loss_function='binar
   return networks[name](input_cols, input_rows, n_filters, loss_function)
 
 def unet(input_cols, input_rows, n_filters, loss_function):
-
+  # Convolutional block: Conv3x3 -> ReLU
   def conv_block(inputs, filters=n_filters, kernel_size=(3, 3), activation='relu', padding='same', kernel_initializer='he_normal'):
     x = Conv2D(
       filters=n_filters,
@@ -78,7 +78,7 @@ def unet(input_cols, input_rows, n_filters, loss_function):
   return model
 
 def resunet(input_cols, input_rows, n_filters, loss_function):
-  # Convolutional block: BN -> ReLU -> Conv
+  # Convolutional block: BN -> ReLU -> Conv3x3
   def conv_block(
     inputs,
     filters=n_filters,
@@ -90,67 +90,76 @@ def resunet(input_cols, input_rows, n_filters, loss_function):
     kernel_initializer='he_normal'
   ):
     if batch_norm:
-      outputs = BatchNormalization()(inputs)
+      x = BatchNormalization()(inputs)
     else:
-      outputs = inputs
+      x = inputs
 
     if activation:
-      outputs = Activation('relu')(outputs)
+      x = Activation('relu')(x)
 
-    outputs = Conv2D(
+    x = Conv2D(
       filters=n_filters,
       kernel_size=kernel_size,
       strides=strides,
       padding=padding,
       kernel_initializer='he_normal'
-    )(outputs)
+    )(x)
 
-    return outputs
+    return x
 
-  # Residual Unit: Input -> ConvBlock -> ConvBlock -> Addition
-  def res_unit(
-    inputs,
-    filters=n_filters,
-    kernel_size=(3, 3),
-    strides=(1, 1),
-    activation='relu',
-    batch_norm=True,
-    padding='same',
-    kernel_initializer='he_normal'
-  ):
-    short = inputs
-    outputs = conv_block(inputs, n_filters, strides=strides, activation=None, batch_norm=False)
-    outputs = conv_block(outputs, n_filters)
-    short = conv_block(short, n_filters, strides=strides, activation=None)
-    outputs = Add()([outputs, short])
-
-    return outputs
-
-  # Inputs
   inputs = Input((input_rows, input_cols, 1))
 
   # Encoding
-  conv1 = res_unit(inputs, n_filters, activation=None, batch_norm=False)
-  conv2 = res_unit(conv1, n_filters*2, strides=(2, 2))
-  conv3 = res_unit(conv2, n_filters*4, strides=(2, 2))
+  short1 = inputs
+  conv1 = conv_block(inputs, n_filters, activation=None, batch_norm=False)
+  conv1 = conv_block(conv1, n_filters)
+  short1 = conv_block(short1, n_filters, activation=None)
+  conv1 = Add()([conv1, short1])
+  
+  short2 = conv1
+  conv2 = conv_block(conv1, n_filters*2, strides=(2, 2))
+  conv2 = conv_block(conv2, n_filters*2)
+  short2 = conv_block(short2, n_filters*2, strides=(2, 2), activation=None)
+  conv2 = Add()([conv2, short2])
+
+  short3 = conv2
+  conv3 = conv_block(conv2, n_filters*4, strides=(2, 2))
+  conv3 = conv_block(conv3, n_filters*4)
+  short3 = conv_block(short3, n_filters*4, strides=(2, 2), activation=None)
+  conv3 = Add()([conv3, short3])
 
   # Bridge
-  conv4 = res_unit(conv3, n_filters*8, strides=(2, 2))
+  short4 = conv3
+  conv4 = conv_block(conv3, n_filters*8, strides=(2, 2))
+  conv4 = conv_block(conv4, n_filters*8)
+  short4 = conv_block(short4, n_filters*8, strides=(2, 2), activation=None)
+  conv4 = Add()([conv4, short4])
 
   # Decoding
   up5 = Conv2DTranspose(filters=n_filters*4, kernel_size=(3, 3), strides=(2, 2), padding='same')(conv4)
   up5 = concatenate([up5, conv3])
-  conv5 = res_unit(up5, n_filters*4)
+  short5 = up5
+  conv5 = conv_block(up5, n_filters*4)
+  conv5 = conv_block(conv5, n_filters*4)
+  short5 = conv_block(short5, n_filters*4, activation=None)
+  conv5 = Add()([conv5, short5])
 
   up6 = Conv2DTranspose(filters=n_filters*2, kernel_size=(3, 3), strides=(2, 2), padding='same')(conv5)
   up6 = concatenate([up6, conv2])
-  conv6 = res_unit(up6, n_filters*2)
+  short6 = up6
+  conv6 = conv_block(up6, n_filters*2)
+  conv6 = conv_block(conv6, n_filters*2)
+  short6 = conv_block(short6, n_filters*2, activation=None)
+  conv6 = Add()([conv6, short6])
 
   up7 = Conv2DTranspose(filters=n_filters, kernel_size=(3, 3), strides=(2, 2), padding='same')(conv6)
   up7 = concatenate([up7, conv1])
-  conv7 = res_unit(up7, n_filters)
+  short7 = up7
+  conv7 = conv_block(up7, n_filters)
+  conv7 = conv_block(conv7, n_filters)
+  short7 = conv_block(short7, n_filters, activation=None)
+  conv7 = Add()([conv7, short7])
 
-  # Outputs
   outputs = Conv2D(filters=1, kernel_size=(1, 1), activation='sigmoid') (conv7)
 
   model = Model(inputs=[inputs], outputs=[outputs])
