@@ -7,11 +7,6 @@ from utils import plots
 from utils import dataset
 from utils import loss
 
-loss = dict(
-  binary_crossentropy='binary_crossentropy',
-  dice_loss=loss.dice_coef_loss
-)
-
 # Command line parameters
 parser = argparse.ArgumentParser()
 parser.add_argument('--validationset-dir', type=str, help='Directory with validation image set', default='z_validation')
@@ -39,7 +34,7 @@ threshold = args.threshold
 X_valid, y_valid = dataset.get_data(validationset_dir, image_width, image_height, limit)
 y_valid = y_valid * 2
 
-network_name = 'Unet'
+network_name = 'ResUnet'
 model = networks.get(name=network_name, loss_function=loss_fn)
 model.load_weights('models/weights.{}.hdf5'.format(model_name))
 

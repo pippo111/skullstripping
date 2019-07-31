@@ -17,7 +17,7 @@ parser.add_argument('--trainset-dir', type=str, help='Directory with train image
 parser.add_argument('--validationset-dir', type=str, help='Directory with validation image set', default='z_validation')
 parser.add_argument('--image-width', type=int, help='Image width', default=176)
 parser.add_argument('--image-height', type=int, help='Image height', default=256)
-parser.add_argument('--batch-size', type=int, help='Batch size', default=16)
+parser.add_argument('--batch-size', type=int, help='Batch size', default=24)
 parser.add_argument('--epochs', type=int, help='Number of epochs', default=50)
 parser.add_argument('--limit', type=int, help='Limit trainset to first number of items')
 parser.add_argument('--loss-function', type=str, help='Loss function name', default='binary_crossentropy')
@@ -62,7 +62,7 @@ train_generator = zip(image_generator, mask_generator)
 plots.draw_aug_samples(X_train, y_train, generator_args, text=fig_title)
 
 # Set the model
-network_name = 'Unet'
+network_name = 'ResUnet'
 model = networks.get(name=network_name, loss_function=loss_fn)
 model.summary()
 tensorboard = TensorBoard(log_dir='logs/{}-{}'.format(time(), model_name))
