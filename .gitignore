@@ -1,6 +1,7 @@
 # Image datasets
 /z_train
 /z_validation
+/z_test
 # Callback logs
 /logs/*
 !/logs/.gitkeep

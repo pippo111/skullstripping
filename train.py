@@ -7,6 +7,7 @@ from keras.callbacks import TensorBoard, ReduceLROnPlateau, EarlyStopping, Model
 
 # Local imports
 from utils import networks
+from utils import network
 from utils import plots
 from utils import dataset
 from utils import loss
@@ -17,7 +18,7 @@ parser.add_argument('--trainset-dir', type=str, help='Directory with train image
 parser.add_argument('--validationset-dir', type=str, help='Directory with validation image set', default='z_validation')
 parser.add_argument('--image-width', type=int, help='Image width', default=176)
 parser.add_argument('--image-height', type=int, help='Image height', default=256)
-parser.add_argument('--batch-size', type=int, help='Batch size', default=24)
+parser.add_argument('--batch-size', type=int, help='Batch size', default=20)
 parser.add_argument('--epochs', type=int, help='Number of epochs', default=50)
 parser.add_argument('--limit', type=int, help='Limit trainset to first number of items')
 parser.add_argument('--loss-function', type=str, help='Loss function name', default='binary_crossentropy')
@@ -62,7 +63,7 @@ train_generator = zip(image_generator, mask_generator)
 plots.draw_aug_samples(X_train, y_train, generator_args, text=fig_title)
 
 # Set the model
-network_name = 'ResUnet'
+network_name = 'Unet'
 model = networks.get(name=network_name, loss_function=loss_fn)
 model.summary()
 tensorboard = TensorBoard(log_dir='logs/{}-{}'.format(time(), model_name))
@@ -74,7 +75,7 @@ results = model.fit_generator(
   epochs=epochs,
   callbacks=[
     tensorboard,
-    EarlyStopping(patience=12, verbose=1),
+    EarlyStopping(patience=6, verbose=1),
     ReduceLROnPlateau(factor=0.1, patience=3, min_lr=0.00001, verbose=1),
     ModelCheckpoint('models/weights.{}.hdf5'.format(model_name), verbose=1, save_best_only=True, save_weights_only=True)
   ],

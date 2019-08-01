@@ -3,9 +3,9 @@ from keras import backend as K
 
 def get(name):
   loss_fn = dict(
-    binary_crossentropy='binary_crossentropy',
-    dice_coef=dice_coef_loss,
-    weighted_cross_entropy=weighted_cross_entropy(0.5)
+    binary='binary_crossentropy',
+    dice=dice_coef_loss,
+    wce=weighted_cross_entropy(0.5)
   )
 
   return loss_fn[name]
@@ -36,3 +36,10 @@ def weighted_cross_entropy(beta):
     return tf.reduce_mean(loss)
 
   return loss
+
+def dice_loss(y_true, y_pred):
+  numerator = 2 * tf.reduce_sum(y_true * y_pred)
+  # some implementations don't square y_pred
+  denominator = tf.reduce_sum(y_true + tf.square(y_pred))
+
+  return numerator / (denominator + tf.keras.backend.epsilon())

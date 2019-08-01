@@ -72,6 +72,6 @@ def plot_sample(X, y, preds, binary_preds, combined_preds, ix=None, text='', thr
   ax[1][2].set_title('Overlay mask')
 
   if save_slice:
-    fig.savefig('axis_1_slice_{}_unet_custom_dice.png'.format(ix))
+    fig.savefig('axis_1_slice_{}_resunet.png'.format(ix))
   else:
     plt.show()

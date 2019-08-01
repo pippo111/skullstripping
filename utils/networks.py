@@ -15,22 +15,22 @@ def get(name, input_cols=176, input_rows=256, n_filters=16, loss_function='binar
 
 def unet(input_cols, input_rows, n_filters, loss_function):
   # Convolutional block: Conv3x3 -> ReLU
-  def conv_block(inputs, filters=n_filters, kernel_size=(3, 3), activation='relu', padding='same', kernel_initializer='he_normal'):
+  def conv_block(inputs, n_filters, kernel_size=(3, 3), activation='relu', padding='same'):
     x = Conv2D(
       filters=n_filters,
       kernel_size=kernel_size,
-      activation=activation,
-      padding=padding,
-      kernel_initializer=kernel_initializer
+      padding=padding
     )(inputs)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
 
     x = Conv2D(
       filters=n_filters,
       kernel_size=kernel_size,
-      activation=activation,
-      padding=padding,
-      kernel_initializer=kernel_initializer
+      padding=padding
     )(x)
+    x = BatchNormalization()(x)
+    x = Activation('relu')(x)
 
     return x
 
@@ -54,7 +54,6 @@ def unet(input_cols, input_rows, n_filters, loss_function):
 
   # Expansive path
   up6 = Conv2DTranspose(filters=n_filters*8, kernel_size=(3, 3), strides=(2, 2), padding='same')(conv5)
-  print(conv1.shape, conv2.shape, conv3.shape, conv4.shape, conv5.shape, up6.shape)
   up6 = concatenate([up6, conv4])
   conv6 = conv_block(up6, n_filters*8)
 
@@ -81,13 +80,12 @@ def resunet(input_cols, input_rows, n_filters, loss_function):
   # Convolutional block: BN -> ReLU -> Conv3x3
   def conv_block(
     inputs,
-    filters=n_filters,
+    n_filters,
     kernel_size=(3, 3),
     strides=(1, 1),
     activation='relu',
     batch_norm=True,
-    padding='same',
-    kernel_initializer='he_normal'
+    padding='same'
   ):
     if batch_norm:
       x = BatchNormalization()(inputs)
@@ -101,8 +99,7 @@ def resunet(input_cols, input_rows, n_filters, loss_function):
       filters=n_filters,
       kernel_size=kernel_size,
       strides=strides,
-      padding=padding,
-      kernel_initializer='he_normal'
+      padding=padding
     )(x)
 
     return x
