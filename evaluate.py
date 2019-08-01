@@ -8,7 +8,7 @@ from helpers import plots
 from helpers import dataset
 from helpers import loss
 
-X_valid, y_valid = dataset.get_data(cfg.validation_dir, cfg.image_width, cfg.image_height, cfg.limit)
+X_valid, y_valid = dataset.get_data(cfg.test_dir, cfg.image_width, cfg.image_height, cfg.limit)
 y_valid = y_valid * 2
 
 model = networks.get(name=cfg.arch, loss_function=cfg.loss_fn)
@@ -32,7 +32,7 @@ for slice_no in cfg.slice_numbers:
     preds_val_t,
     combined_val,
     text=fig_title,
-    ix=int(slice_no),
+    ix=slice_no,
     threshold=cfg.threshold,
     save_slice=cfg.save_slice
   )
