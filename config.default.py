@@ -19,12 +19,14 @@ image_height: 256
 #
 # Model architecture
 arch: 'ResUnet'
+# Loss function name
+loss_fn: 'binary_crossentropy'
+# File name for the model checkpoint to save, default ext: .hdf5
+checkpoint: 'weights.axis1_unet_binary'
 # Number of epochs
 epochs: 50
 # Batch size
 batch_size: 20
-# Loss function name
-loss_fn: 'binary_crossentropy'
 # Seed for augmentation shuffle
 seed: 1
 # Threshold for binary output
@@ -33,8 +35,6 @@ threshold: 0.5
 #
 # Output result setup
 #
-# File name for the model checkpoint to save
-model_name: 'axis1_resunet_binary'
 # Select slice to show or save on output
 slice_numbers: [20, 44]
 # Save showed slice as png

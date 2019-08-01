@@ -12,7 +12,7 @@ X_valid, y_valid = dataset.get_data(cfg.test_dir, cfg.image_width, cfg.image_hei
 y_valid = y_valid * 2
 
 model = networks.get(name=cfg.arch, loss_function=cfg.loss_fn)
-model.load_weights('models/weights.{}.hdf5'.format(cfg.model_name))
+model.load_weights('models/{}.hdf5'.format(cfg.checkpoint))
 
 loss, acc = model.evaluate(X_valid, y_valid, verbose=1)
 print('loss={}, acc={}'.format(loss, acc))
@@ -22,7 +22,7 @@ preds_val_t = (preds_val > cfg.threshold).astype(np.uint8)
 
 combined_val = y_valid + preds_val_t
 
-fig_title = 'Limit={}, Loss fn: {}, Threshold: {}, Model name: {}, Loss={}, Acc={}'.format(cfg.limit or len(X_valid), cfg.loss_fn, cfg.threshold, cfg.model_name, loss, acc)
+fig_title = 'Limit={}, Loss fn: {}, Threshold: {}, Model name: {}, Loss={}, Acc={}'.format(cfg.limit or len(X_valid), cfg.loss_fn, cfg.threshold, cfg.checkpoint, loss, acc)
 
 for slice_no in cfg.slice_numbers:
   plots.plot_sample(

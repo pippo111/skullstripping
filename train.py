@@ -22,7 +22,7 @@ mask_generator = mask_datagen.flow(y_train, seed=cfg.seed, batch_size=cfg.batch_
 train_generator = zip(image_generator, mask_generator)
 
 # Show random input data just for simple check
-fig_title = 'Limit={}, Batch size={}, Loss: {}, Model name: {}'.format(cfg.limit, cfg.batch_size, cfg.loss_fn, cfg.model_name)
+fig_title = 'Limit={}, Batch size={}, Loss: {}, Model name: {}'.format(cfg.limit, cfg.batch_size, cfg.loss_fn, cfg.checkpoint)
 plots.draw_aug_samples(X_train, y_train, cfg.generator_args, text=fig_title)
 
 # Set the model
@@ -35,10 +35,10 @@ results = model.fit_generator(
   steps_per_epoch=(len(X_train) // cfg.batch_size),
   epochs=cfg.epochs,
   callbacks=[
-    TensorBoard(log_dir='logs/{}-{}'.format(time(), cfg.model_name)),
+    TensorBoard(log_dir='logs/{}-{}'.format(time(), cfg.checkpoint)),
     EarlyStopping(patience=6, verbose=1),
     ReduceLROnPlateau(factor=0.1, patience=3, min_lr=0.00001, verbose=1),
-    ModelCheckpoint('models/weights.{}.hdf5'.format(cfg.model_name), verbose=1, save_best_only=True, save_weights_only=True)
+    ModelCheckpoint('models/{}.hdf5'.format(cfg.checkpoint), verbose=1, save_best_only=True, save_weights_only=True)
   ],
   validation_data=(X_valid, y_valid)
 )
