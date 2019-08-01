@@ -34,8 +34,6 @@ def draw_results_log(results, text=''):
   plt.title("Learning curve")
   plt.plot(results.history["loss"], label="loss")
   plt.plot(results.history["val_loss"], label="val_loss")
-  plt.plot(results.history["acc"], label="acc")
-  plt.plot(results.history["val_acc"], label="val_acc")
   plt.plot( np.argmin(results.history["val_loss"]), np.min(results.history["val_loss"]), marker="x", color="r", label="best model")
   plt.xlabel("Epochs")
   plt.ylabel("log_loss")
