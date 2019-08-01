@@ -12,6 +12,12 @@
 !/models/.gitkeep
 # IDE config
 /.vscode/*
+# Result screenshots
+/results
+!/results/.gitkeep
+# Datasets
+/datasets
+!/datasets/.gitkeep
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

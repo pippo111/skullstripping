@@ -41,7 +41,7 @@ def draw_results_log(results, text=''):
 
   plt.show()
 
-def plot_sample(X, y, preds, binary_preds, combined_preds, ix=None, text='', threshold=0.5, save_slice=False):
+def plot_sample(X, y, preds, binary_preds, combined_preds, ix=None, text='', threshold=0.5, save_slice=False, slice_name='model'):
   if ix is None:
     ix = random.randint(0, len(X) - 1)
 
@@ -70,6 +70,6 @@ def plot_sample(X, y, preds, binary_preds, combined_preds, ix=None, text='', thr
   ax[1][2].set_title('Overlay mask')
 
   if save_slice:
-    fig.savefig('axis_1_slice_{}_resunet.png'.format(ix))
+    fig.savefig('results/slice_{}_{}.png'.format(ix, slice_name))
   else:
     plt.show()

@@ -8,12 +8,13 @@ from keras.optimizers import Adam
 def get(name, input_cols=176, input_rows=256, n_filters=16, loss_function='binary_crossentropy'):
   networks = dict(
     Unet=unet,
+    UnetBN=unet_bn,
     ResUnet=resunet
   )
 
   return networks[name](input_cols, input_rows, n_filters, loss_function)
 
-def unet(input_cols, input_rows, n_filters, loss_function):
+def unet(input_cols, input_rows, n_filters, loss_function, batch_norm=False):
   # Convolutional block: Conv3x3 -> ReLU
   def conv_block(inputs, n_filters, kernel_size=(3, 3), activation='relu', padding='same'):
     x = Conv2D(
@@ -21,7 +22,9 @@ def unet(input_cols, input_rows, n_filters, loss_function):
       kernel_size=kernel_size,
       padding=padding
     )(inputs)
-    x = BatchNormalization()(x)
+
+    if batch_norm:
+      x = BatchNormalization()(x)
     x = Activation('relu')(x)
 
     x = Conv2D(
@@ -29,7 +32,9 @@ def unet(input_cols, input_rows, n_filters, loss_function):
       kernel_size=kernel_size,
       padding=padding
     )(x)
-    x = BatchNormalization()(x)
+
+    if batch_norm:
+      x = BatchNormalization()(x)
     x = Activation('relu')(x)
 
     return x
@@ -75,6 +80,10 @@ def unet(input_cols, input_rows, n_filters, loss_function):
   model.compile(optimizer=Adam(), loss=loss_function, metrics=['accuracy'])
 
   return model
+
+def unet_bn(input_cols, input_rows, n_filters, loss_function):
+  return unet(input_cols, input_rows, n_filters, loss_function, batch_norm=True)
+
 
 def resunet(input_cols, input_rows, n_filters, loss_function):
   # Convolutional block: BN -> ReLU -> Conv3x3
