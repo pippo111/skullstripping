@@ -32,6 +32,20 @@ preds_val_t = (preds_val > cfg.model['threshold']).astype(np.uint8)
 
 combined_val = y_valid + preds_val_t
 
+yellow_perc = 0
+reds_total = 0
+for image in combined_val:
+  r = np.count_nonzero(image == 1.0) # false negative (red)
+  y = np.count_nonzero(image == 2.0) # false positive (yellow)
+  g = np.count_nonzero(image == 3.0) # true positive (green)
+  mask = g + y
+  
+  yellow_perc += 0 if mask == 0 else y/mask
+  reds_total += r
+
+print('False positive avg % = ', '{:.0%}'.format(yellow_perc / combined_val.shape[0]))
+print('False negative total = ', reds_total)
+
 fig_title = 'Limit={}, Loss fn: {}, Threshold: {}, Model name: {}, Loss={}, Acc={}'.format(
   cfg.dataset['limit'] or len(X_valid),
   cfg.model['loss_fn'],
